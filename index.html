@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050806"><meta name="description" content="Surya Fit V5 - 100 Day Fitness Journey">
+<title>Surya Fit V5</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#040705;--card:rgba(14,26,17,.76);--g:#39ff70;--g2:#11c94c;--txt:#f3fff5;--muted:#91a798;--line:#39ff7030}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 15% 0,#12351d,#071009 30%,#030504 75%);color:var(--txt);font:15px Arial,sans-serif;min-height:100vh}.hidden{display:none!important}
+.wrap{max-width:540px;margin:auto;padding:15px 14px 92px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}.brand{font-size:26px;font-weight:900}.brand i{font-style:normal;color:var(--g)}.pill{border:1px solid var(--line);background:#39ff700b;color:#caffd3;border-radius:20px;padding:8px 11px;font-size:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:16px;margin:11px 0;backdrop-filter:blur(18px);box-shadow:0 12px 40px #0008}.hero{display:grid;grid-template-columns:1fr auto;gap:10px}.muted{color:var(--muted);font-size:12px}.big{font-size:40px;font-weight:900;margin:5px 0}.barbg{height:10px;background:#162018;border-radius:20px;overflow:hidden}.bar{height:100%;width:0;background:linear-gradient(90deg,var(--g2),var(--g));border-radius:20px;box-shadow:0 0 18px #39ff7060}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:#ffffff05;border:1px solid #ffffff09;border-radius:17px;padding:13px}.num{font-size:23px;font-weight:900}.title{display:flex;justify-content:space-between;align-items:center}.title h2{font-size:18px;margin:0}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.task{display:flex;align-items:center;gap:11px;padding:12px 0;border-bottom:1px solid #ffffff09}.task:last-child{border-bottom:0}.check{width:28px;height:28px;border:1px solid #46614e;border-radius:9px;display:grid;place-items:center;cursor:pointer;flex:none}.check.done{background:var(--g);border-color:var(--g);color:#031007;font-weight:900}.taskname{font-weight:800}.tasksub{font-size:12px;color:var(--muted);margin-top:3px}
+.btn{border:1px solid var(--line);background:#0a150d;color:#dcffe5;border-radius:13px;padding:10px 12px;font-weight:800}.primary{width:100%;border:0;background:linear-gradient(90deg,#13b849,#39ff70);color:#021006;padding:14px;border-radius:14px;font-weight:900;margin-top:9px}.danger{background:#170909!important;color:#ffbaba!important;border:1px solid #ff555526!important}
+input,select{width:100%;margin-top:6px;padding:12px;border-radius:12px;background:#07100a;color:#fff;border:1px solid var(--line);outline:none}label{font-size:12px;color:var(--muted);display:block;margin-top:9px}.notice{font-size:12px;color:#a9c1ae;line-height:1.5}
+.water{display:flex;flex-wrap:wrap;gap:8px}.food{display:grid;grid-template-columns:1fr 78px 70px;gap:7px;align-items:center;margin:8px 0}.food input{margin:0}.badge{display:inline-block;padding:7px 10px;border:1px solid var(--line);border-radius:14px;background:#39ff700b;color:#caffd3;margin:3px}
+.page{display:none}.page.active{display:block}.bottom{position:fixed;z-index:5;bottom:0;left:0;right:0;background:#030604ed;backdrop-filter:blur(18px);border-top:1px solid var(--line);padding:8px 12px}.navs{max-width:540px;margin:auto;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.nav{border:0;background:transparent;color:#78917e;padding:9px 3px;border-radius:12px;font-size:11px}.nav.active{color:var(--g);background:#39ff7010}
+.login{min-height:100vh;display:grid;place-items:center;padding:20px}.loginbox{max-width:420px;width:100%;text-align:center}.sun{width:88px;height:88px;border-radius:28px;margin:auto auto 16px;display:grid;place-items:center;font-size:38px;background:linear-gradient(145deg,#112c18,#050a06);border:1px solid var(--line);box-shadow:0 0 35px #39ff7020}.google{width:100%;padding:14px;border:0;border-radius:14px;background:white;color:#111;font-weight:900}
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAvQuA3RltA4HEh002yQJwbTdGqrM17WGQ",
+  authDomain: "surya-fit.firebaseapp.com",
+  projectId: "surya-fit",
+  storageBucket: "surya-fit.firebasestorage.app",
+  messagingSenderId: "931365316131",
+  appId: "1:931365316131:web:042165c08a5d4e8cb67396",
+  measurementId: "G-EQ26LCL547"
+};
+const appFB = initializeApp(firebaseConfig);
+const auth = getAuth(appFB);
+const db = getFirestore(appFB);
+const provider = new GoogleAuthProvider();
+provider.setCustomParameters({prompt:"select_account"});
+
+window.firebaseGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const u = result.user;
+    d.logged = true;
+    d.name = u.displayName || "Surya";
+    d.photo = u.photoURL || "";
+    d.uid = u.uid;
+    localStorage.setItem(KEY, JSON.stringify(d));
+    await window.cloudLoad(u);
+    show();
+  } catch (e) {
+    console.error(e);
+    alert("Google Login failed: " + (e.code ? e.code + "\n" : "") + (e.message || e));
+  }
+};
+window.firebaseLogout = () => signOut(auth);
+window.cloudSave = async () => {
+  const u = auth.currentUser;
+  if (!u) return;
+  try {
+    await setDoc(doc(db,"users",u.uid), {
+      name: d.name || u.displayName || "Surya",
+      email: u.email || "",
+      updatedAt: serverTimestamp()
+    }, {merge:true});
+    await setDoc(doc(db,"users",u.uid,"fitness","main"), JSON.parse(JSON.stringify(d)));
+    window.cloudReady = true;
+  } catch (e) {
+    console.warn("Cloud save failed", e);
+  }
+};
+window.cloudLoad = async (u) => {
+  try {
+    const snap = await getDoc(doc(db,"users",u.uid,"fitness","main"));
+    if (snap.exists()) {
+      const cloud = snap.data();
+      d = Object.assign(d, cloud, {logged:true, uid:u.uid, name:u.displayName || cloud.name || "Surya", photo:u.photoURL || cloud.photo || ""});
+    } else {
+      d.logged = true; d.uid = u.uid; d.name = u.displayName || d.name || "Surya"; d.photo = u.photoURL || d.photo || "";
+      await window.cloudSave();
+    }
+    d.logged = true;
+    localStorage.setItem(KEY, JSON.stringify(d));
+    window.cloudReady = true;
+    show();
+  } catch(e) {
+    console.error(e);
+    d.logged = true; d.uid = u.uid; d.name = u.displayName || d.name || "Surya"; d.photo = u.photoURL || d.photo || "";
+    localStorage.setItem(KEY, JSON.stringify(d));
+    show();
+    alert("Cloud sync failed, so local data will continue to work.\n\n" + (e.message || e));
+  }
+};
+onAuthStateChanged(auth, async (u) => {
+  if (u) {
+    d.logged = true; d.uid = u.uid; d.name = u.displayName || d.name || "Surya"; d.photo = u.photoURL || d.photo || "";
+    await window.cloudLoad(u);
+  } else {
+    d.logged = false;
+    localStorage.setItem(KEY, JSON.stringify(d));
+    login.classList.remove("hidden");
+    app.classList.add("hidden");
+    bottom.classList.add("hidden");
+  }
+});
+</script>
+</head>
+<body>
+<div id="login" class="login"><div class="loginbox">
+<div class="sun">☀</div><div class="brand" style="font-size:35px">Surya <i>Fit</i></div>
+<p class="notice">100 Day Fitness Journey<br>Food • Activity • Water • Progress • Rewards</p>
+<button class="google" onclick="googleLogin()">Continue with Google</button>
+<p class="notice">Firebase/Google configuration is ready to connect. No Google password is stored in localStorage.</p>
+</div></div>
+
+<div id="app" class="wrap hidden">
+<div class="top"><div class="brand">Surya <i>Fit</i></div><div class="pill" id="day"></div></div>
+
+<div id="home" class="page active">
+<div class="card hero"><div><div class="muted" id="welcome">Welcome</div><div class="big"><span id="weight">66</span> <span style="font-size:14px;color:var(--muted)">kg</span></div><div class="muted">Target <span id="target">60</span> kg</div></div><div style="text-align:right"><div class="num" id="lost">0</div><div class="muted">kg lost</div></div><div style="grid-column:1/-1"><div class="barbg"><div class="bar" id="bar"></div></div><div class="muted" id="ptext" style="margin-top:6px"></div></div></div>
+<div class="grid"><div class="stat"><div class="num" id="water">0</div><div class="muted">ml water</div></div><div class="stat"><div class="num" id="steps">0</div><div class="muted">steps</div></div><div class="stat"><div class="num" id="cal">0</div><div class="muted">food kcal</div></div><div class="stat"><div class="num" id="protein">0g</div><div class="muted">protein</div></div></div>
+<div class="card"><div class="title"><h2>Today's Tasks</h2><button class="btn" onclick="resetToday()">Reset</button></div><div id="tasks"></div></div>
+<div class="card"><div class="title"><h2>💧 Water</h2><span class="muted">2500 ml</span></div><div class="water" style="margin-top:10px"><button class="btn" onclick="waterAdd(250)">+250</button><button class="btn" onclick="waterAdd(500)">+500</button><button class="btn" onclick="waterAdd(750)">+750</button><button class="btn" onclick="waterSet()">Complete</button></div></div>
+<div class="card"><div class="title"><h2>🏆 Badges</h2><span class="muted">100-day journey</span></div><div id="badges"></div></div>
+</div>
+
+<div id="foodPage" class="page">
+<div class="card"><div class="title"><h2>🍱 Food Tracker</h2><span class="muted">Today</span></div>
+<div class="notice">Use approximate values. Your actual calorie needs should be personalized by a qualified professional.</div>
+<div class="food"><input id="foodName" placeholder="Food e.g. 2 idli"><input id="foodCal" type="number" placeholder="kcal"><input id="foodPro" type="number" placeholder="protein g"></div>
+<button class="primary" onclick="addFood()">Add food</button><div id="foods"></div>
+<div class="grid" style="margin-top:12px"><div class="stat"><div class="num" id="foodTotal">0</div><div class="muted">kcal</div></div><div class="stat"><div class="num" id="proTotal">0g</div><div class="muted">protein</div></div></div>
+</div></div>
+
+<div id="activityPage" class="page">
+<div class="card"><h2>🚶 Activity</h2><div class="row"><div><label>Steps</label><input id="stepInput" type="number" placeholder="8000"></div><div><label>Walking minutes</label><input id="walkInput" type="number" placeholder="30"></div></div><button class="primary" onclick="saveActivity()">Save activity</button>
+<div class="card" style="margin:12px 0 0"><h2>🏃 Safe Workout</h2><div class="notice">No heavy weights. Stop if you have pain, dizziness, or unusual symptoms. Follow your clinician's advice for your operated/weak hand.</div>
+<div id="workouts"></div></div></div></div>
+
+<div id="progressPage" class="page">
+<div class="card"><h2>📊 Progress</h2><div class="row"><div><label>Weight kg</label><input id="wi" type="number" step=".1"></div><div><label>Waist cm</label><input id="wa" type="number" step=".1"></div></div><button class="primary" onclick="saveMeasure()">Save measurement</button><div id="history" style="margin-top:12px"></div></div>
+<div class="card"><h2>📅 Weekly Report</h2><div id="weekly"></div></div></div>
+
+<div id="settingsPage" class="page"><div class="card"><h2>⚙️ Settings</h2>
+<label>Language</label><select id="lang" onchange="setLang(this.value)"><option value="en">English</option><option value="ta">தமிழ்</option></select>
+<label>Starting weight</label><input id="sw" type="number" step=".1"><label>Target weight</label><input id="tw" type="number" step=".1">
+<label>Water reminder interval</label><select id="interval"><option value="60">60 minutes</option><option value="90">90 minutes</option><option value="120">120 minutes</option></select>
+<button class="primary" onclick="saveSettings()">Save</button><button class="primary" style="background:#0c180e;color:#caffd3;border:1px solid var(--line)" onclick="notify()">🔔 Enable notifications</button>
+<button class="primary" style="background:#0c180e;color:#caffd3;border:1px solid var(--line)" onclick="backup()">💾 Export backup</button>
+<button class="primary danger" onclick="logout()">Logout</button>
+<p class="notice">LocalStorage is used for local fitness tracking. Cloud sync requires Firebase configuration. Background push notifications require a notification service/backend; browser timers alone are not guaranteed after the app is fully closed.</p>
+</div></div>
+</div>
+
+<div id="bottom" class="bottom hidden"><div class="navs">
+<button class="nav active" onclick="go('home',this)">🏠<br>Home</button><button class="nav" onclick="go('foodPage',this)">🍱<br>Food</button><button class="nav" onclick="go('activityPage',this)">🏃<br>Activity</button><button class="nav" onclick="go('progressPage',this)">📊<br>Progress</button>
+</div></div>
+
+<script>
+const KEY="suryaFitV4";
+const day0=()=>({water:0,steps:0,walk:0,foods:[],tasks:{water:false,walk:false,workout:false,food:false,sleep:false,weight:false}});
+let d=JSON.parse(localStorage.getItem(KEY)||"null")||{logged:false,name:"Surya",startWeight:66,targetWeight:60,startDate:new Date().toISOString().slice(0,10),interval:60,lang:"en",days:{},history:[]};
+function save(){
+  localStorage.setItem(KEY,JSON.stringify(d));
+  render();
+  if(window.cloudReady && window.cloudSave){
+    clearTimeout(window.cloudTimer);
+    window.cloudTimer=setTimeout(()=>window.cloudSave(),700);
+  }
+}
+function k(){return new Date().toISOString().slice(0,10)}
+function today(){if(!d.days[k()])d.days[k()]=day0();return d.days[k()]}
+function dayNo(){return Math.min(100,Math.max(1,Math.floor((Date.now()-new Date(d.startDate+"T00:00:00").getTime())/86400000)+1))}
+function googleLogin(){if(window.firebaseGoogleLogin) window.firebaseGoogleLogin(); else alert("Firebase is loading. Please try again.");}
+function show(){login.classList.add("hidden");app.classList.remove("hidden");bottom.classList.remove("hidden");render()}
+async function logout(){d.logged=false;localStorage.setItem(KEY,JSON.stringify(d));try{if(window.firebaseLogout) await window.firebaseLogout()}catch(e){} location.reload()}
+const taskDefs=[["water","💧","Water","2500 ml"],["walk","🚶","Walking","8000–10000 steps"],["workout","🏃","Workout","20–30 min"],["food","🥗","Food tracking","Log meals"],["sleep","😴","Sleep","7–9 hours"],["weight","⚖️","Morning weight","Record weight"]];
+function toggleTask(x){today().tasks[x]=!today().tasks[x];save()}
+function renderTasks(){let t=today();tasks.innerHTML=taskDefs.map(x=>`<div class="task"><div class="check ${t.tasks[x[0]]?"done":""}" onclick="toggleTask('${x[0]}')">${t.tasks[x[0]]?"✓":""}</div><div><div class="taskname">${x[1]} ${x[2]}</div><div class="tasksub">${x[3]}</div></div></div>`).join("")}
+function waterAdd(n){today().water=Math.min(10000,today().water+n);if(today().water>=2500)today().tasks.water=true;save()}
+function waterSet(){today().water=2500;today().tasks.water=true;save()}
+function resetToday(){delete d.days[k()];save()}
+function foodTotals(){return today().foods.reduce((a,x)=>{a.cal+=Number(x.cal)||0;a.pro+=Number(x.pro)||0;return a},{cal:0,pro:0})}
+function addFood(){let n=foodName.value.trim(),c=Number(foodCal.value),p=Number(foodPro.value);if(!n||!c)return alert("Enter food and calories");today().foods.push({n,cal:c,pro:p||0});today().tasks.food=true;foodName.value=foodCal.value=foodPro.value="";save()}
+function renderFood(){let f=today().foods;foods.innerHTML=f.map((x,i)=>`<div class="task"><div class="taskmain"><b>${x.n}</b><div class="tasksub">${x.cal} kcal • ${x.pro}g protein</div></div><button class="btn" onclick="delFood(${i})">×</button></div>`).join("")||'<div class="notice">No food added today.</div>';let q=foodTotals();foodTotal.textContent=q.cal;proTotal.textContent=q.pro+"g";cal.textContent=q.cal;protein.textContent=q.pro+"g"}
+function delFood(i){today().foods.splice(i,1);save()}
+function saveActivity(){today().steps=Math.max(0,Number(stepInput.value)||0);today().walk=Math.max(0,Number(walkInput.value)||0);if(today().steps>=8000)today().tasks.walk=true;save();alert("Activity saved")}
+const workoutList=["10 min easy walk","5 min gentle mobility","Chair squat 2 × 10","Standing calf raise 2 × 12","Core breathing 5 min"];
+function renderWorkouts(){workouts.innerHTML=workoutList.map((x,i)=>`<div class="task"><div class="check ${today().tasks["wo"+i]?"done":""}" onclick="today().tasks['wo${i}']=!today().tasks['wo${i}'];if(${i}===0||${i}===1){};save()">${today().tasks["wo"+i]?"✓":""}</div><div><b>${x}</b><div class="tasksub">No heavy weights</div></div></div>`).join("")}
+function saveMeasure(){let w=Number(wi.value),waist=Number(wa.value)||null;if(!w)return alert("Enter weight");d.history.push({date:k(),weight:w,waist});today().tasks.weight=true;save();alert("Saved")}
+function renderHistory(){history.innerHTML=d.history.slice(-10).reverse().map(x=>`<div class="task"><div>📅</div><div><b>${x.date}</b><div class="tasksub">${x.weight} kg${x.waist?` • ${x.waist} cm waist`:""}</div></div></div>`).join("")||'<div class="notice">No measurements yet.</div>'}
+function weeklyHtml(){let h=d.history.slice(-7);if(!h.length)return"No weekly data yet.";let first=h[0].weight,last=h.at(-1).weight;return`<div class="grid"><div class="stat"><div class="num">${(first-last).toFixed(1)} kg</div><div class="muted">change</div></div><div class="stat"><div class="num">${h.length}</div><div class="muted">entries</div></div></div>`}
+function badges(){let n=dayNo(),arr=[];if(n>=7)arr.push("🔥 7 Day");if(n>=30)arr.push("🏆 30 Day");if(n>=50)arr.push("💚 50 Day");if(n>=100)arr.push("👑 100 Day");if(today().water>=2500)arr.push("💧 Water");if(today().steps>=8000)arr.push("🚶 Walker");return arr.length?arr.map(x=>`<span class="badge">${x}</span>`).join(""):"<span class='notice'>Complete tasks to unlock badges.</span>"}
+function saveSettings(){d.startWeight=Number(sw.value)||66;d.targetWeight=Number(tw.value)||60;d.interval=Number(interval.value)||60;save();alert("Saved")}
+async function notify(){if(!("Notification"in window))return alert("Notifications not supported");let p=await Notification.requestPermission();if(p==="granted")new Notification("Surya Fit 💧",{body:"Water reminders enabled"});else alert("Allow notifications in browser settings.")}
+function backup(){let blob=new Blob([JSON.stringify(d,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="surya-fit-backup.json";a.click();URL.revokeObjectURL(a.href)}
+function setLang(v){d.lang=v;save()}
+function go(id,b){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav").forEach(x=>x.classList.remove("active"));b.classList.add("active");render()}
+function render(){if(!d.logged)return;let t=today(),n=dayNo(),cur=Number(d.history.at(-1)?.weight||d.startWeight),loss=Math.max(0,d.startWeight-cur),total=Math.max(.1,d.startWeight-d.targetWeight),p=Math.min(100,loss/total*100);const $=id=>document.getElementById(id);$("day").textContent=`DAY ${n} / 100`;$("welcome").textContent=`Welcome, ${d.name}`;$("weight").textContent=cur.toFixed(1);$("target").textContent=d.targetWeight;$("lost").textContent=loss.toFixed(1);$("bar").style.width=p+"%";$("ptext").textContent=`${p.toFixed(0)}% target progress`;$("water").textContent=t.water;$("steps").textContent=t.steps;renderTasks();renderFood();renderWorkouts();renderHistory();$("weekly").innerHTML=weeklyHtml();$("badges").innerHTML=badges();$("sw").value=d.startWeight;$("tw").value=d.targetWeight;$("interval").value=d.interval;$("lang").value=d.lang}
+</script>
+</body></html>
